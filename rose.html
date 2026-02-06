@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>./run_love_kernel.sh</title>
+    <style>
+        /* ==================== GLOBAL STYLES ==================== */
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* ==================== PHASE 1: HACKER TERMINAL ==================== */
+        #hacker-view {
+            background-color: #0d0d0d;
+            color: #00ff41;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            width: 100%;
+            z-index: 10;
+            transition: opacity 1.5s ease;
+        }
+
+        /* Matrix Background */
+        #matrix-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; opacity: 0.3;
+        }
+
+        .terminal-container {
+            display: flex;
+            width: 90%; max-width: 1200px; height: 80vh;
+            border: 1px solid #333;
+            background: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            position: relative; z-index: 10;
+            backdrop-filter: blur(2px);
+        }
+
+        .terminal {
+            flex: 1; padding: 20px; overflow-y: auto;
+            border-right: 1px solid #333;
+            font-size: 14px; line-height: 1.5;
+        }
+        
+        .visual {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Terminal Text Styles */
+        .cursor {
+            display: inline-block; width: 8px; height: 15px;
+            background: #00ff41; animation: blink 1s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* The "Next Page" Link */
+        .decrypt-btn {
+            display: inline-block;
+            margin-top: 20px;
+            color: #ff0055; cursor: pointer; text-decoration: underline;
+            font-weight: bold; animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+
+        /* ==================== PHASE 2: LAVENDER/PINK PAGE ==================== */
+        #pink-view {
+            display: none; /* Hidden initially */
+            height: 100vh; width: 100%;
+            /* Lavender Haze Gradient */
+            background: linear-gradient(135deg, #e0c3fc 0%, #ff9a9e 100%);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: 'Georgia', serif; 
+            opacity: 0;
+            transition: opacity 2s ease;
+            overflow-y: auto; 
+            padding-top: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.65);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(100, 0, 100, 0.2);
+            max-width: 500px;
+            margin: 20px;
+            color: #4a4a4a;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        h1 { color: #8e44ad; margin-bottom: 10px; font-weight: normal; font-size: 2rem; }
+        p { font-size: 1.1rem; line-height: 1.6; color: #555; }
+
+        /* --- SVG BOUQUET STYLES --- */
+        .bouquet-container {
+            position: relative;
+            width: 180px;
+            height: 250px;
+            margin-bottom: -30px; /* Overlap with card slightly */
+            animation: float 6s ease-in-out infinite;
+            z-index: 20;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* SVG Styling */
+        .rose-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.2));
+        }
+
+        /* Spotify Container */
+        .music-player {
+            margin-top: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .music-player:hover {
+            transform: scale(1.02);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="hacker-view">
+        <canvas id="matrix-bg"></canvas>
+        <div class="terminal-container">
+            <div class="terminal" id="console">
+                <span id="typewriter"></span><span class="cursor"></span>
+            </div>
+            <div class="visual">
+                <canvas id="roseCanvas" width="500" height="500"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div id="pink-view">
+        
+        <div class="bouquet-container">
+            <svg class="rose-svg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(50,50)">
+                    <path d="M200,400 Q200,300 200,200" stroke="#4CAF50" stroke-width="8" fill="none" />
+                    <path d="M200,300 Q250,280 280,290" stroke="#4CAF50" stroke-width="6" fill="none" /> <ellipse cx="280" cy="290" rx="20" ry="10" fill="#4CAF50" transform="rotate(20, 280, 290)"/>
+                    <path d="M200,350 Q150,330 120,340" stroke="#4CAF50" stroke-width="6" fill="none" /> <ellipse cx="120" cy="340" rx="20" ry="10" fill="#4CAF50" transform="rotate(-20, 120, 340)"/>
+                    
+                    <circle cx="200" cy="180" r="60" fill="#E91E63" />
+                    <circle cx="190" cy="170" r="50" fill="#F06292" />
+                    <circle cx="200" cy="170" r="40" fill="#F48FB1" />
+                    <path d="M200,170 Q220,150 200,130 Q180,150 200,170" fill="#C2185B" />
+                    
+                    <path d="M160,200 Q140,150 170,140" stroke="#880E4F" stroke-width="2" fill="none" />
+                    <path d="M240,200 Q260,150 230,140" stroke="#880E4F" stroke-width="2" fill="none" />
+                    <path d="M200,240 Q150,230 160,180" stroke="#880E4F" stroke-width="2" fill="none" />
+                    <path d="M200,240 Q250,230 240,180" stroke="#880E4F" stroke-width="2" fill="none" />
+                </g>
+                <g transform="translate(180, 100) scale(0.6) rotate(30)">
+                    <path d="M200,400 Q200,300 200,200" stroke="#4CAF50" stroke-width="8" fill="none" />
+                    <circle cx="200" cy="200" r="50" fill="#E91E63" />
+                </g>
+                 <g transform="translate(-50, 120) scale(0.6) rotate(-30)">
+                    <path d="M200,400 Q200,300 200,200" stroke="#4CAF50" stroke-width="8" fill="none" />
+                    <circle cx="200" cy="200" r="50" fill="#E91E63" />
+                </g>
+            </svg>
+        </div>
+
+        <div class="card">
+            <h1>The Meaning of the Rose</h1>
+            <p>
+                What you saw in the terminal was a <strong>Maurer Rose</strong>. 
+                It connects 360 individual chaotic points to form a perfect geometric structure.
+            </p>
+            <p style="color: #d63384; font-style: italic;">
+                "Just like random moments connecting to create something beautiful."
+            </p>
+            <p>
+                Standard flowers last a week.<br>
+                Math lasts forever.<br>
+                <strong>Happy Rose Day! ❤️</strong>
+            </p>
+        </div>
+
+        <div class="music-player">
+            <iframe style="border-radius:12px" 
+                src="https://open.spotify.com/embed/track/5jQI2r1RdgtuT8S3iG8zFC?utm_source=generator" 
+                width="300" height="80" frameBorder="0" allowfullscreen="" 
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
+            </iframe>
+        </div>
+
+    </div>
+
+
+    <script>
+        // --- 1. MATRIX BACKGROUND ---
+        const bgCanvas = document.getElementById('matrix-bg');
+        const bgCtx = bgCanvas.getContext('2d');
+        bgCanvas.width = window.innerWidth;
+        bgCanvas.height = window.innerHeight;
+        const characters = '10101010🌹100101🌹';
+        const fontSize = 16;
+        const drops = Array(Math.floor(bgCanvas.width / fontSize)).fill(1);
+
+        function drawMatrix() {
+            bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+            bgCtx.font = fontSize + 'px monospace';
+            for (let i = 0; i < drops.length; i++) {
+                const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                bgCtx.fillStyle = (text === '🌹') ? '#ff0055' : '#0f3a15';
+                bgCtx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > bgCanvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        const matrixInterval = setInterval(drawMatrix, 50);
+
+        // --- 2. TERMINAL LOGIC (YOUR EXACT TEXT) ---
+        const consoleText = [
+            "> INITIALIZING SYSTEM...",
+            "> LOADING MODULE: LOVE_KERNEL...",
+            "> ACCESSING MEMORY BANK...",
+            "> [SUCCESS] CONNECTION ESTABLISHED.",
+            "> ---------------------------------",
+            "> SUBJECT: YOU",
+            "> STATUS: VITAL",
+            "> EXECUTING: rose_generation.py",
+            "> ---------------------------------",
+            "> Calculating polar coordinates...",
+            "> Rendering petals...",
+            "> Adding emotional weight...",
+            ">",
+            "> ERROR: Variable 'LOVE' is essentially INFINITE.",
+            "> OVERFLOW EXCEPTION IGNORED.",
+            ">",
+            "> DONE.",
+            "> Happy Rose Day. ❤️"
+        ];
+
+        let lineIndex = 0;
+        let charIndex = 0;
+        const typeSpeed = 30; 
+        const terminalDiv = document.getElementById("typewriter");
+        const consoleDiv = document.getElementById("console");
+
+        function typeWriter() {
+            if (lineIndex < consoleText.length) {
+                if (charIndex < consoleText[lineIndex].length) {
+                    terminalDiv.innerHTML += consoleText[lineIndex].charAt(charIndex);
+                    charIndex++;
+                    setTimeout(typeWriter, typeSpeed);
+                } else {
+                    terminalDiv.innerHTML += "<br>";
+                    charIndex = 0;
+                    lineIndex++;
+                    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                    
+                    if(lineIndex === 8) {
+                        startRoseAnimation();
+                    }
+
+                    setTimeout(typeWriter, 200); 
+                }
+            } else {
+                setTimeout(() => {
+                    terminalDiv.innerHTML += "<br><br><span class='decrypt-btn' onclick='showPinkPage()'>[CLICK TO OPEN SURPRISE]</span>";
+                    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                }, 500);
+            }
+        }
+        
+        setTimeout(typeWriter, 1000);
+
+
+        // --- 3. MAURER ROSE ANIMATION ---
+        const canvas = document.getElementById("roseCanvas");
+        const ctx = canvas.getContext("2d");
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        let n = 6, d = 71;
+        
+        ctx.lineWidth = 0.5;
+        let gradient = ctx.createLinearGradient(0, 0, 500, 500);
+        gradient.addColorStop(0, "cyan");
+        gradient.addColorStop(0.5, "magenta");
+        gradient.addColorStop(1, "red");
+        ctx.strokeStyle = gradient;
+
+        function startRoseAnimation() {
+            let i = 0;
+            function drawFrame() {
+                if (i <= 361) {
+                    for(let k=0; k<2; k++) {
+                        let theta = i * Math.PI / 180;
+                        let r = 200 * Math.sin(n * theta);
+                        let x = r * Math.cos(theta);
+                        let y = r * Math.sin(theta);
+                        
+                        let theta_next = i * d * Math.PI / 180;
+                        let r_next = 200 * Math.sin(n * theta_next);
+                        let x_next = r_next * Math.cos(theta_next);
+                        let y_next = r_next * Math.sin(theta_next);
+
+                        ctx.beginPath();
+                        ctx.moveTo(cx + x, cy + y);
+                        ctx.lineTo(cx + x_next, cy + y_next);
+                        ctx.stroke();
+                        i++;
+                    }
+                    requestAnimationFrame(drawFrame);
+                }
+            }
+            drawFrame();
+        }
+
+        // --- 4. TRANSITION FUNCTION ---
+        function showPinkPage() {
+            const hackerView = document.getElementById('hacker-view');
+            const pinkView = document.getElementById('pink-view');
+
+            hackerView.style.opacity = '0';
+            
+            setTimeout(() => {
+                hackerView.style.display = 'none';
+                clearInterval(matrixInterval); 
+                
+                pinkView.style.display = 'flex';
+                setTimeout(() => {
+                    pinkView.style.opacity = '1';
+                }, 50);
+                
+            }, 1500);
+        }
+
+    </script>
+</body>
+</html>
